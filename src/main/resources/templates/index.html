@@ -1,0 +1,99 @@
+<!DOCTYP<!DOCTYPE html>
+	<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>API Selector</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+			}
+
+			.container {
+				display: flex;
+				justify-content: space-between;
+			}
+
+			.panel {
+				border: 1px solid #000;
+				width: 48%;
+				height: 95vh;
+				padding: 10px;
+			}
+
+			.header {
+				font-weight: bold;
+				margin-bottom: 10px;
+			}
+
+			.button {
+				display: block;
+				margin-bottom: 10px;
+				padding: 5px;
+				cursor: pointer;
+			}
+
+			.dropdown {
+				width: calc(40% - 20px);
+				margin-bottom: 10px;
+			}
+
+			.textarea {
+				width: calc(100% - 10px);
+				margin-bottom: 10px;
+				height: 90vh;
+				/* Adjust height as needed */
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="container">
+			<div class="panel">
+				<form id="apiForm" method="post">
+					<div style="display: flex; justify-content: space-evenly">
+						<div class="header"> <a href="/" style="text-decoration: none;"> Choose API </a></div>
+						<select id="apiDropdown" class="dropdown" name="apiEndpoint">
+							<option value="/generateModelClassUI">GENERATE JAVA MODEL</option>
+							<option value="/queryBuilderUI">QUERY BUILDER</option>
+						</select>
+						<button type="button" class="button" id="generateButton">GENERATE</button>
+					</div>
+					<textarea id="input" name="query" class="textarea" placeholder="PASTE YOUR TEXT HERE ..."
+						spellcheck="false" data-gramm="false" wt-ignore-input="true"></textarea>
+				</form>
+			</div>
+
+			<div class="panel">
+				<button class="button" id="copyButton" type="button">COPY</button>
+				<textarea id="output" name="result" class="textarea" placeholder="Generated content will appear here..."
+					spellcheck="false" data-gramm="false" wt-ignore-input="true" th:text="${result}"></textarea>
+			</div>
+		</div>
+
+		<script>
+			document.getElementById("generateButton").addEventListener("click", function () {
+				const apiUrl = document.getElementById("apiDropdown").value;
+				const inputText = document.getElementById("input").value;
+
+				const form = document.getElementById("apiForm");
+				form.action = apiUrl;
+				form.submit();
+			});
+
+			document.getElementById("copyButton").addEventListener("click", function () {
+				const outputText = document.getElementById("output").value;
+				navigator.clipboard.writeText(outputText).then(
+					() => {
+						alert("Output copied to clipboard!");
+					},
+					(err) => {
+						alert("Failed to copy text: " + err);
+					}
+				);
+			});
+		</script>
+	</body>
+
+	</html>
