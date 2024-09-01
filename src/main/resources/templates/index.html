@@ -39,6 +39,11 @@
 				margin-bottom: 10px;
 			}
 
+			.child-dropdown {
+				width: calc(40% - 100px);
+				margin-bottom: 10px;
+			}
+
 			.textarea {
 				width: calc(100% - 10px);
 				margin-bottom: 10px;
@@ -57,6 +62,7 @@
 						<select id="apiDropdown" class="dropdown" name="apiEndpoint">
 							<option value="/generateModelClassUI">GENERATE JAVA MODEL</option>
 							<option value="/queryBuilderUI">QUERY BUILDER</option>
+							<option value="/replaceNewlineUI">DELIMITER SEPARATOR</option>
 						</select>
 						<button type="button" class="button" id="generateButton">GENERATE</button>
 					</div>
@@ -77,6 +83,22 @@
 				const apiUrl = document.getElementById("apiDropdown").value;
 				const inputText = document.getElementById("input").value;
 
+				if (apiUrl === "/replaceNewlineUI") {
+					const delimiterDropdown = document.getElementById("delimiterDropdown");
+					if (delimiterDropdown) {
+						const delimiter = delimiterDropdown.value;
+
+						// Add delimiter to the form data to be posted
+						const delimiterInput = document.createElement("input");
+						delimiterInput.type = "hidden";
+						delimiterInput.name = "delimiter";
+						delimiterInput.value = delimiter;
+
+						// Append the hidden input to the form
+						document.getElementById("apiForm").appendChild(delimiterInput);
+					}
+				}
+
 				const form = document.getElementById("apiForm");
 				form.action = apiUrl;
 				form.submit();
@@ -92,6 +114,49 @@
 						alert("Failed to copy text: " + err);
 					}
 				);
+			});
+
+			document.getElementById("apiDropdown").addEventListener("change", function () {
+				const apiUrl = document.getElementById("apiDropdown").value;
+
+				// Check if the selected option is "/replaceNewlineUI"
+				if (apiUrl === "/replaceNewlineUI") {
+					// Create a new dropdown element
+					const delimiterDropdown = document.createElement("select");
+					delimiterDropdown.id = "delimiterDropdown";
+					delimiterDropdown.className = "child-dropdown";
+					delimiterDropdown.style.marginLeft = "10px";
+
+					// Add options to the new dropdown
+					const options = [
+						{value: ",", text: "Comma (,)"},
+						{value: ";", text: "Semicolon (;)"},
+						{value: "|", text: "Pipe (|)"},
+						{value: " ", text: "Space ( )"}
+					];
+
+					options.forEach(option => {
+						const opt = document.createElement("option");
+						opt.value = option.value;
+						opt.text = option.text;
+						delimiterDropdown.add(opt);
+					});
+
+					// Remove existing delimiter dropdown if already added
+					const existingDropdown = document.getElementById("delimiterDropdown");
+					if (existingDropdown) {
+						existingDropdown.remove();
+					}
+
+					// Insert the new dropdown after the API dropdown
+					document.getElementById("apiDropdown").parentNode.insertBefore(delimiterDropdown, document.getElementById("generateButton"));
+				} else {
+					// Remove the delimiter dropdown if any other API is selected
+					const existingDropdown = document.getElementById("delimiterDropdown");
+					if (existingDropdown) {
+						existingDropdown.remove();
+					}
+				}
 			});
 		</script>
 	</body>
