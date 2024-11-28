@@ -9,6 +9,9 @@ COPY build.gradle settings.gradle gradlew ./
 COPY gradle gradle
 COPY src src
 
+# Grant executable permissions to the Gradle wrapper
+RUN chmod +x ./gradlew
+
 # Build the application
 RUN ./gradlew bootJar --no-daemon
 
