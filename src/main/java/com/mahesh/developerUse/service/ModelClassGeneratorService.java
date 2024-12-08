@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 public class ModelClassGeneratorService {
 
 	public String generateModelClassFromCreateQuery(String createTableQuery) {
+		// Normalize the input query: replace non-breaking spaces and trim
+		createTableQuery = createTableQuery.replace("\u00A0", " ").replaceAll("\\s+", " ").trim();
 		String className = extractClassName(createTableQuery);
 		String fields = extractFields(createTableQuery);
 
@@ -81,12 +83,12 @@ public class ModelClassGeneratorService {
 	}
 
 	private String extractClassName(String query) {
-		Pattern pattern = Pattern.compile("CREATE TABLE `?(\\w+)`? \\(");
+		Pattern pattern = Pattern.compile("(?i)CREATE TABLE\\s+`?(\\w+)`?\\s*\\(");
 		Matcher matcher = pattern.matcher(query);
 		if (matcher.find()) {
 			return capitalize(convertToCamelCase(matcher.group(1)));
 		}
-		throw new IllegalArgumentException("Invalid CREATE TABLE query");
+		throw new IllegalArgumentException("Invalid CREATE TABLE query: " + query);
 	}
 
 	private String extractFields(String query) {
@@ -101,48 +103,52 @@ public class ModelClassGeneratorService {
 	private String mapSqlTypeToJavaType(String sqlType) {
 		sqlType = sqlType.toUpperCase().split("\\(")[0];
 		switch (sqlType) {
-		case "BIT":
-		case "BOOLEAN":
-			return "boolean";
-		case "TINYINT":
-		case "SMALLINT":
-			return "short";
-		case "INT":
-		case "INTEGER":
-			return "int";
-		case "BIGINT":
-			return "long";
-		case "REAL":
-			return "float";
-		case "FLOAT":
-		case "DOUBLE":
-			return "double";
-		case "NUMERIC":
-		case "DECIMAL":
-			return "java.math.BigDecimal";
-		case "CHAR":
-		case "VARCHAR":
-		case "LONGVARCHAR":
-		case "NCHAR":
-		case "NVARCHAR":
-		case "LONGNVARCHAR":
-			return "String";
-		case "DATE":
-			return "Date";
-		case "TIME":
-			return "Time";
-		case "TIMESTAMP":
-			return "Timestamp";
-		case "BINARY":
-		case "VARBINARY":
-		case "LONGVARBINARY":
-			return "byte[]";
-		case "BLOB":
-			return "Blob";
-		case "CLOB":
-			return "Clob";
-		default:
-			throw new IllegalArgumentException("Unsupported SQL type: " + sqlType);
+			case "BIT":
+			case "BOOLEAN":
+				return "boolean";
+			case "TINYINT":
+			case "SMALLINT":
+				return "short";
+			case "INT":
+			case "INTEGER":
+				return "int";
+			case "BIGINT":
+				return "long";
+			case "REAL":
+				return "float";
+			case "FLOAT":
+			case "DOUBLE":
+				return "double";
+			case "NUMERIC":
+			case "DECIMAL":
+				return "java.math.BigDecimal";
+			case "CHAR":
+			case "VARCHAR":
+			case "LONGVARCHAR":
+			case "NCHAR":
+			case "NVARCHAR":
+			case "LONGNVARCHAR":
+			case "TEXT":
+			case "MEDIUMTEXT":
+			case "LONGTEXT":
+				return "String";
+			case "DATE":
+				return "Date";
+			case "TIME":
+				return "Time";
+			case "TIMESTAMP":
+			case "DATETIME":
+				return "Timestamp";
+			case "BINARY":
+			case "VARBINARY":
+			case "LONGVARBINARY":
+				return "byte[]";
+			case "BLOB":
+				return "Blob";
+			case "CLOB":
+				return "Clob";
+			default:
+				throw new IllegalArgumentException("Unsupported SQL type: " + sqlType);
 		}
 	}
 

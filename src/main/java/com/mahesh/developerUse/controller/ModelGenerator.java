@@ -22,8 +22,11 @@ public class ModelGenerator {
 	private ModelClassGeneratorService modelClassGeneratorService;
 
 	@PostMapping("/generateModelClass")
-	public String generateModelClassFromCreateQuery(@RequestBody String query) {
-		return modelClassGeneratorService.generateModelClassFromCreateQuery(query);
+	public String generateModelClassFromCreateQuery(@RequestBody String createTableQuery) {
+		try {
+			return modelClassGeneratorService.generateModelClassFromCreateQuery(createTableQuery);
+		} catch (Exception e) {
+			return "error :" + e.getMessage();
+		}
 	}
-
 }
