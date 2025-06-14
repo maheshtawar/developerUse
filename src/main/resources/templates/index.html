@@ -1,164 +1,241 @@
 <!DOCTYP<!DOCTYPE html>
-	<html lang="en">
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Selector</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
 
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>API Selector</title>
-		<style>
-			body {
-				font-family: Arial, sans-serif;
-			}
+      .container {
+        display: flex;
+        justify-content: space-between;
+      }
 
-			.container {
-				display: flex;
-				justify-content: space-between;
-			}
+      .panel {
+        border: 1px solid #000;
+        width: 48%;
+        height: 95vh;
+        padding: 10px;
+      }
 
-			.panel {
-				border: 1px solid #000;
-				width: 48%;
-				height: 95vh;
-				padding: 10px;
-			}
+      .header {
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
 
-			.header {
-				font-weight: bold;
-				margin-bottom: 10px;
-			}
+      .button {
+        display: block;
+        margin-bottom: 10px;
+        padding: 5px;
+        cursor: pointer;
+      }
 
-			.button {
-				display: block;
-				margin-bottom: 10px;
-				padding: 5px;
-				cursor: pointer;
-			}
+      .dropdown {
+        width: calc(40% - 20px);
+        margin-bottom: 10px;
+      }
 
-			.dropdown {
-				width: calc(40% - 20px);
-				margin-bottom: 10px;
-			}
+      .child-dropdown {
+        width: calc(40% - 100px);
+        margin-bottom: 10px;
+      }
 
-			.child-dropdown {
-				width: calc(40% - 100px);
-				margin-bottom: 10px;
-			}
+      .textarea {
+        width: calc(100% - 10px);
+        margin-bottom: 10px;
+        height: 90vh;
+        /* Adjust height as needed */
+      }
+    </style>
+  </head>
 
-			.textarea {
-				width: calc(100% - 10px);
-				margin-bottom: 10px;
-				height: 90vh;
-				/* Adjust height as needed */
-			}
-		</style>
-	</head>
+  <body>
+    <div class="container">
+      <div class="panel">
+        <form id="apiForm" method="post">
+          <div style="display: flex; justify-content: space-evenly">
+            <div class="header">
+              <a href="/" style="text-decoration: none"> Choose API </a>
+            </div>
+            <select id="apiDropdown" class="dropdown" name="apiEndpoint">
+              <option value="/generateModelClassUI">GENERATE JAVA MODEL</option>
+              <option value="/queryBuilderUI">QUERY BUILDER</option>
+              <option value="/replaceNewlineUI">DELIMITER SEPARATOR</option>
+              <option value="/generateJavaFilesUI">JAVA FILES GENERATOR</option>
+              <!-- Add this line -->
+            </select>
+            <button type="button" class="button" id="generateButton">GENERATE</button>
+          </div>
+          <textarea
+            id="input"
+            name="query"
+            class="textarea"
+            placeholder="PASTE YOUR CREATE QUERY HERE ..."
+            spellcheck="false"
+            data-gramm="false"
+            wt-ignore-input="true"
+          ></textarea>
+        </form>
+      </div>
 
-	<body>
-		<div class="container">
-			<div class="panel">
-				<form id="apiForm" method="post">
-					<div style="display: flex; justify-content: space-evenly">
-						<div class="header"> <a href="/" style="text-decoration: none;"> Choose API </a></div>
-						<select id="apiDropdown" class="dropdown" name="apiEndpoint">
-							<option value="/generateModelClassUI">GENERATE JAVA MODEL</option>
-							<option value="/queryBuilderUI">QUERY BUILDER</option>
-							<option value="/replaceNewlineUI">DELIMITER SEPARATOR</option>
-						</select>
-						<button type="button" class="button" id="generateButton">GENERATE</button>
-					</div>
-					<textarea id="input" name="query" class="textarea" placeholder="PASTE YOUR CREATE QUERY HERE ..."
-						spellcheck="false" data-gramm="false" wt-ignore-input="true"></textarea>
-				</form>
-			</div>
+      <div class="panel">
+        <div id="fileTabs"></div>
+        <button class="button" id="copyButton" type="button">COPY</button>
+        <textarea
+          id="output"
+          name="result"
+          class="textarea"
+          placeholder="Generated content will appear here..."
+          spellcheck="false"
+          data-gramm="false"
+          wt-ignore-input="true"
+          th:text="${result}"
+        ></textarea>
+      </div>
+    </div>
 
-			<div class="panel">
-				<button class="button" id="copyButton" type="button">COPY</button>
-				<textarea id="output" name="result" class="textarea" placeholder="Generated content will appear here..."
-					spellcheck="false" data-gramm="false" wt-ignore-input="true" th:text="${result}"></textarea>
-			</div>
-		</div>
+    <script>
+      document.getElementById("generateButton").addEventListener("click", function () {
+        const apiUrl = document.getElementById("apiDropdown").value;
+        const inputText = document.getElementById("input").value;
 
-		<script>
-			document.getElementById("generateButton").addEventListener("click", function () {
-				const apiUrl = document.getElementById("apiDropdown").value;
-				const inputText = document.getElementById("input").value;
+        if (apiUrl === "/replaceNewlineUI") {
+          const delimiterDropdown = document.getElementById("delimiterDropdown");
+          if (delimiterDropdown) {
+            const delimiter = delimiterDropdown.value;
 
-				if (apiUrl === "/replaceNewlineUI") {
-					const delimiterDropdown = document.getElementById("delimiterDropdown");
-					if (delimiterDropdown) {
-						const delimiter = delimiterDropdown.value;
+            // Add delimiter to the form data to be posted
+            const delimiterInput = document.createElement("input");
+            delimiterInput.type = "hidden";
+            delimiterInput.name = "delimiter";
+            delimiterInput.value = delimiter;
 
-						// Add delimiter to the form data to be posted
-						const delimiterInput = document.createElement("input");
-						delimiterInput.type = "hidden";
-						delimiterInput.name = "delimiter";
-						delimiterInput.value = delimiter;
+            // Append the hidden input to the form
+            document.getElementById("apiForm").appendChild(delimiterInput);
+          }
+        }
 
-						// Append the hidden input to the form
-						document.getElementById("apiForm").appendChild(delimiterInput);
-					}
-				}
+        const form = document.getElementById("apiForm");
+        form.action = apiUrl;
+        form.submit();
+      });
 
-				const form = document.getElementById("apiForm");
-				form.action = apiUrl;
-				form.submit();
-			});
+      document.getElementById("copyButton").addEventListener("click", function () {
+        const outputText = document.getElementById("output").value;
+        navigator.clipboard.writeText(outputText).then(
+          () => {
+            alert("Output copied to clipboard!");
+          },
+          (err) => {
+            alert("Failed to copy text: " + err);
+          }
+        );
+      });
 
-			document.getElementById("copyButton").addEventListener("click", function () {
-				const outputText = document.getElementById("output").value;
-				navigator.clipboard.writeText(outputText).then(
-					() => {
-						alert("Output copied to clipboard!");
-					},
-					(err) => {
-						alert("Failed to copy text: " + err);
-					}
-				);
-			});
+      document.getElementById("apiDropdown").addEventListener("change", function () {
+        const apiUrl = document.getElementById("apiDropdown").value;
 
-			document.getElementById("apiDropdown").addEventListener("change", function () {
-				const apiUrl = document.getElementById("apiDropdown").value;
+        // Check if the selected option is "/replaceNewlineUI"
+        if (apiUrl === "/replaceNewlineUI") {
+          // Create a new dropdown element
+          const delimiterDropdown = document.createElement("select");
+          delimiterDropdown.id = "delimiterDropdown";
+          delimiterDropdown.className = "child-dropdown";
+          delimiterDropdown.style.marginLeft = "10px";
 
-				// Check if the selected option is "/replaceNewlineUI"
-				if (apiUrl === "/replaceNewlineUI") {
-					// Create a new dropdown element
-					const delimiterDropdown = document.createElement("select");
-					delimiterDropdown.id = "delimiterDropdown";
-					delimiterDropdown.className = "child-dropdown";
-					delimiterDropdown.style.marginLeft = "10px";
+          // Add options to the new dropdown
+          const options = [
+            { value: ",", text: "Comma (,)" },
+            { value: ";", text: "Semicolon (;)" },
+            { value: "|", text: "Pipe (|)" },
+            { value: " ", text: "Space ( )" },
+          ];
 
-					// Add options to the new dropdown
-					const options = [
-						{value: ",", text: "Comma (,)"},
-						{value: ";", text: "Semicolon (;)"},
-						{value: "|", text: "Pipe (|)"},
-						{value: " ", text: "Space ( )"}
-					];
+          options.forEach((option) => {
+            const opt = document.createElement("option");
+            opt.value = option.value;
+            opt.text = option.text;
+            delimiterDropdown.add(opt);
+          });
 
-					options.forEach(option => {
-						const opt = document.createElement("option");
-						opt.value = option.value;
-						opt.text = option.text;
-						delimiterDropdown.add(opt);
-					});
+          // Remove existing delimiter dropdown if already added
+          const existingDropdown = document.getElementById("delimiterDropdown");
+          if (existingDropdown) {
+            existingDropdown.remove();
+          }
 
-					// Remove existing delimiter dropdown if already added
-					const existingDropdown = document.getElementById("delimiterDropdown");
-					if (existingDropdown) {
-						existingDropdown.remove();
-					}
+          // Insert the new dropdown after the API dropdown
+          document
+            .getElementById("apiDropdown")
+            .parentNode.insertBefore(
+              delimiterDropdown,
+              document.getElementById("generateButton")
+            );
+        } else {
+          // Remove the delimiter dropdown if any other API is selected
+          const existingDropdown = document.getElementById("delimiterDropdown");
+          if (existingDropdown) {
+            existingDropdown.remove();
+          }
+        }
+      });
 
-					// Insert the new dropdown after the API dropdown
-					document.getElementById("apiDropdown").parentNode.insertBefore(delimiterDropdown, document.getElementById("generateButton"));
-				} else {
-					// Remove the delimiter dropdown if any other API is selected
-					const existingDropdown = document.getElementById("delimiterDropdown");
-					if (existingDropdown) {
-						existingDropdown.remove();
-					}
-				}
-			});
-		</script>
-	</body>
+      // After page load, if files are present, create tabs
+      window.addEventListener("DOMContentLoaded", function () {
+        /*[[${files}]]*/ // Thymeleaf will replace this with the files map
+        const files = /*[[${files}]]*/ {};
+        const fileTabs = document.getElementById("fileTabs");
+        const output = document.getElementById("output");
+        if (Object.keys(files).length > 0) {
+          fileTabs.innerHTML = "";
+          Object.keys(files).forEach((file, idx) => {
+            const btn = document.createElement("button");
+            btn.textContent = file;
+            btn.className = "button";
+            btn.onclick = () => {
+              output.value = files[file];
+            };
+            fileTabs.appendChild(btn);
+            if (idx === 0) output.value = files[file];
+          });
+        }
+      });
+    </script>
+    <script th:inline="javascript">
+      /*<![CDATA[*/
+      var files = /*[[${files}]]*/ {};
+      /*]]>*/
+      const fileTabs = document.getElementById("fileTabs");
+      const output = document.getElementById("output");
+      if (Object.keys(files).length > 0) {
+        // Clear previous content
+        fileTabs.innerHTML = "";
 
-	</html>
+        // Create dropdown
+        const select = document.createElement("select");
+        select.className = "dropdown";
+        select.style.marginBottom = "10px";
+
+        Object.keys(files).forEach((file, idx) => {
+          const opt = document.createElement("option");
+          opt.value = file;
+          opt.textContent = file;
+          select.appendChild(opt);
+        });
+
+        // Show the first file by default
+        output.value = files[select.value];
+
+        // Change output when dropdown changes
+        select.onchange = function () {
+          output.value = files[this.value];
+        };
+
+        fileTabs.appendChild(select);
+      }
+    </script>
+  </body>
+</html>

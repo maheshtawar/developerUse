@@ -131,6 +131,7 @@ public class ModelClassGeneratorService {
 			case "TEXT":
 			case "MEDIUMTEXT":
 			case "LONGTEXT":
+			case "ENUM":
 				return "String";
 			case "DATE":
 				return "Date";

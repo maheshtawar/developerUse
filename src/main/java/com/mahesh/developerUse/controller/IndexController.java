@@ -3,6 +3,8 @@
  */
 package com.mahesh.developerUse.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mahesh.developerUse.service.APIService;
+import com.mahesh.developerUse.service.JavaFilesGeneratorService; // Import the new service
 import com.mahesh.developerUse.service.ModelClassGeneratorService;
 import com.mahesh.developerUse.service.QueryBuilderService;
 
@@ -28,6 +31,9 @@ public class IndexController {
 
 	@Autowired
 	APIService apiService;
+
+	@Autowired
+	private JavaFilesGeneratorService javaFilesGeneratorService; // Add this line
 
 	@GetMapping("/")
 	public String index() {
@@ -53,6 +59,13 @@ public class IndexController {
 			@RequestParam(value = "delimiter", defaultValue = ",") String delimiter, Model model) {
 		String result = apiService.replaceNewlineWithDelimiter(data, delimiter);
 		model.addAttribute("result", result);
+		return "index";
+	}
+
+	@PostMapping("/generateJavaFilesUI")
+	public String generateJavaFiles(@RequestParam("query") String query, Model model) {
+		Map<String, String> files = javaFilesGeneratorService.generateJavaFilesFromCreateQuery(query);
+		model.addAttribute("files", files);
 		return "index";
 	}
 
